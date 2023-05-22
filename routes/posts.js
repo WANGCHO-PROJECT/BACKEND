@@ -48,12 +48,13 @@ const upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single(
 router.post("/api/posts", auth, upload, async (req, res) => {
   try {
     // 토큰 - userId
-    // const { userId } = res.locals.user;
+    const { userId } = res.locals.user;
+    console.log(userId)
     // req.body로 작성 내용 받아오기
     const { title, content } = req.body;
     // image는 file로 받기
     const image = req.file;
-    console.log(title, content);
+    const imageFileName = image.filename;
 
     // title, content, image 입력 값이 없을 때 message 띄우기
     if (!title && content && image) {
@@ -65,7 +66,7 @@ router.post("/api/posts", auth, upload, async (req, res) => {
     }
 
     // 게시글 작성
-    await Posts.create({ userId: userId, title, content, image });
+    await Posts.create({ userId: userId, title, content, image: imageFileName });
     return res.status(200).json({ message: "게시글 작성에 성공했습니다." });
   } catch (e) {
     console.log(e);

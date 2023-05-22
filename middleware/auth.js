@@ -6,6 +6,7 @@ const REFRESH_KEY = "nodeprac2";
 module.exports = async (req, res, next) => {
   try {
     const { refresh, access } = req.cookies;
+    console.log(access)
     const [accessType, accessToken] = access.split(" ");
     //토큰타입 검증
     if (accessType !== "Bearer") {
