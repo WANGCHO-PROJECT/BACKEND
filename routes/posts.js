@@ -45,16 +45,15 @@ const upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single(
 // 1. 게시글 작성 API
 //      @토큰을 검사하여, 유효한 토큰일 경우에만 게시글 작성 가능
 //      @title, content, image 작성
-router.post("/api/posts", upload, async (req, res) => {
+router.post("/api/posts", auth, upload, async (req, res) => {
   try {
     // 토큰 - userId
-    const { userId } = res.locals.user;
+    // const { userId } = res.locals.user;
     // req.body로 작성 내용 받아오기
     const { title, content } = req.body;
     // image는 file로 받기
     const image = req.file;
-
-  
+    console.log(title, content);
 
     // title, content, image 입력 값이 없을 때 message 띄우기
     if (!title && content && image) {
@@ -80,8 +79,8 @@ router.post("/api/posts", upload, async (req, res) => {
 router.get("/api/posts", async (req, res) => {
   try {
     // 게시글 목록 조회
-    const subQuery1 = `(select count(postId) from Likes where likecheck=1 group by postId)`
-    const subQuery2 = `(select count(postId) from Comments group by postId)`
+    const subQuery1 = `(select count(postId) from Likes where likecheck=1 group by postId)`;
+    const subQuery2 = `(select count(postId) from Comments group by postId)`;
     const posts = await Posts.findAll({
       attributes: [
         "postId",
@@ -122,9 +121,9 @@ router.get("/api/posts", async (req, res) => {
     }
     // 게시글 목록 조회
     return res.status(200).json({ posts });
-  } catch (e){
+  } catch (e) {
     // 예외 처리
-    console.log(e)
+    console.log(e);
     return res.status(400).json({ message: "목록 조회에 실패했습니다." });
   }
 });
@@ -208,7 +207,7 @@ router.put("/api/post/:postId", auth, upload, async (req, res) => {
     const post = await Posts.findOne({ where: { postId } });
     // 입력 받은 title, content, image body로
     const { title, content } = req.body;
-    const image = req.file
+    const image = req.file;
 
     // 게시글이 없을 경우
     if (!post) {
