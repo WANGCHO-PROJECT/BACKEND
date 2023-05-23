@@ -49,7 +49,7 @@ router.post("/api/posts", auth, upload, async (req, res) => {
   try {
     // 토큰 - userId
     const { userId } = res.locals.user;
-    console.log(userId)
+    console.log(userId);
     // req.body로 작성 내용 받아오기
     const { title, content } = req.body;
     // image는 file로 받기
@@ -66,7 +66,12 @@ router.post("/api/posts", auth, upload, async (req, res) => {
     }
 
     // 게시글 작성
-    await Posts.create({ userId: userId, title, content, image: imageFileName });
+    await Posts.create({
+      userId: userId,
+      title,
+      content,
+      image: imageFileName,
+    });
     return res.status(200).json({ message: "게시글 작성에 성공했습니다." });
   } catch (e) {
     console.log(e);
@@ -80,8 +85,6 @@ router.post("/api/posts", auth, upload, async (req, res) => {
 router.get("/api/posts", async (req, res) => {
   try {
     // 게시글 목록 조회
-    const subQuery1 = `(select count(postId) from Likes where likecheck=1 group by postId)`;
-    const subQuery2 = `(select count(postId) from Comments group by postId)`;
     const posts = await Posts.findAll({
       attributes: [
         "postId",
@@ -92,8 +95,18 @@ router.get("/api/posts", async (req, res) => {
         "image",
         "postCreatedAt",
         "postUpdatedAt",
-        [sequelize.literal(subQuery1), "likeNum"],
-        [sequelize.literal(subQuery2), "commentNum"],
+        [
+          sequelize.literal(`(
+            SELECT COUNT(*) FROM Likes WHERE Likes.postId = Posts.postId AND Likes.likecheck = 1
+          )`),
+          "likeNum",
+        ],
+        [
+          sequelize.literal(`(
+            SELECT COUNT(*) FROM Comments WHERE Comments.postId = Posts.postId
+          )`),
+          "commentNum",
+        ],
       ],
       include: [
         {
@@ -117,7 +130,7 @@ router.get("/api/posts", async (req, res) => {
     });
 
     // 작성된 게시글이 없을 경우
-    if (!posts) {
+    if (posts.length === 0) {
       return res.status(400).json({ message: "작성된 게시글이 없습니다." });
     }
     // 게시글 목록 조회
@@ -178,7 +191,7 @@ router.get("/api/posts/:postId", async (req, res) => {
     });
 
     // 게시글이 없을 경우
-    if (post.length < 1) {
+    if (!post) {
       return res.status(400).json({ message: "존재하지 않는 게시글입니다." });
     }
     // 게시글 상세 조회
@@ -209,6 +222,7 @@ router.put("/api/post/:postId", auth, upload, async (req, res) => {
     // 입력 받은 title, content, image body로
     const { title, content } = req.body;
     const image = req.file;
+    const imageFileName = image.filename;
 
     // 게시글이 없을 경우
     if (!post) {
@@ -228,7 +242,7 @@ router.put("/api/post/:postId", auth, upload, async (req, res) => {
     }
     // image는 file로 받는다
     if (image) {
-      post.image = image;
+      post.image = imageFileName;
     }
 
     // 수정할 부분이 모두 없을 경우 / 수정할 내용이 있다면 해당 부분만 수정
@@ -262,7 +276,7 @@ router.delete("/api/posts/:postId", auth, async (req, res) => {
     const post = await Posts.findByPk(postId);
 
     // 게시글이 없을 경우
-    if (!post) {
+    if (!post.length) {
       return res.status(400).json({ message: "존재하지 않는 게시글입니다." });
     }
     // 게시글 권한 확인
