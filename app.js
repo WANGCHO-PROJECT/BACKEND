@@ -11,7 +11,7 @@ const port = 3001;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors({ origin: "*", credentials: true, }));
+app.use(cors({ origin: "*" }));
 app.use("/", [postRoute, commentRoute, userRoute, likeRoute]);
 app.use('/', express.static(path.join(__dirname, 'uploads')));
 

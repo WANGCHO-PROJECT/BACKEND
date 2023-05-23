@@ -5,8 +5,9 @@ const REFRESH_KEY = "nodeprac2";
 
 module.exports = async (req, res, next) => {
   try {
-    const { refresh, access } = req.cookies;
-    console.log(access)
+    const { refresh, access } = req.headers;
+    console.log(req.headers)
+    console.log(req.header)
     const [accessType, accessToken] = access.split(" ");
     //토큰타입 검증
     if (accessType !== "Bearer") {
@@ -64,24 +65,22 @@ module.exports = async (req, res, next) => {
             where: { refreshToken },
           }
         );
-        res.cookie("access", `Bearer ${updateToken}`);
+        res.json({"access": `Bearer ${updateToken}`});
         //locals 객체에 userId 삽입
         res.locals.user = userId;
         next();
       } //tokens db check success
       else {
-        res.clearCookie("access");
-        res.clearCookie("refresh");
         return res.status(400).json({ message: "로그인이 필요한 기능입니다." });
       }
     } //refresh Token success
   } catch (error) {
     //try
+    if (error.name === "TokenExpiredError")
     console.log(error);
-    res.clearCookie("access");
-    res.clearCookie("refresh");
     return res.status(400).json({
-      message: "비정상적인 요청입니다.",
+      message: "로그인이 필요한 기능입니다.",
     });
+    
   } //catch
 };
