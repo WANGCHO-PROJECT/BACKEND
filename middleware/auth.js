@@ -76,7 +76,6 @@ module.exports = async (req, res, next) => {
     } //refresh Token success
   } catch (error) {
     //try
-    if (error.name === "TokenExpiredError")
     console.log(error);
     return res.status(400).json({
       message: "로그인이 필요한 기능입니다.",

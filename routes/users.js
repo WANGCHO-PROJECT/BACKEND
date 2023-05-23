@@ -55,14 +55,12 @@ router.post("/api/login", async (req, res) => {
       return res.status(400).json({ message: "회원 정보가 일치하지 않습니다" });
     }
     //토큰 발행
-    const refreshToken = jwt.sign({}, REFRESH_KEY, { expiresIn: "1s" });
-    const accessToken = jwt.sign({ userId }, ACCESS_KEY, { expiresIn: "1s" });
+    const refreshToken = jwt.sign({}, REFRESH_KEY, { expiresIn: "1d" });
+    const accessToken = jwt.sign({ userId }, ACCESS_KEY, { expiresIn: "1h" });
     await Tokens.create({
       refreshToken,
       accessToken,
     });
-    res.cookie("refresh", `Bearer ${refreshToken}`, {sameSite: "none"});
-    res.cookie("access", `Bearer ${accessToken}`, {sameSite: "none"});
 
     return res
       .status(200)
