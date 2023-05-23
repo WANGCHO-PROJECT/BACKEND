@@ -45,11 +45,10 @@ const upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single(
 // 1. 게시글 작성 API
 //      @토큰을 검사하여, 유효한 토큰일 경우에만 게시글 작성 가능
 //      @title, content, image 작성
-router.post("/api/posts", auth, upload, async (req, res) => {
+router.post("/api/posts", upload, async (req, res) => {
   try {
     // 토큰 - userId
     const { userId } = res.locals.user;
-    console.log(userId);
     // req.body로 작성 내용 받아오기
     const { title, content } = req.body;
     // image는 file로 받기
