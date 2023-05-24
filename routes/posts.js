@@ -265,23 +265,24 @@ router.put("/api/post/:postId", auth, upload, async (req, res) => {
 
 // 5. 게시글 삭제 API
 //      @토큰을 검사하여, 해당 사용자가 작성한 게시글만 삭제 가능
-router.delete("/api/posts/:postId", auth, async (req, res) => {
+router.delete("/api/posts/:postId", async (req, res) => {
   try {
     // userId
-    const { userId } = res.locals.user;
+    // const { userId } = res.locals.user;
     // params로 postId
     const { postId } = req.params;
     // post 조회하기
     const post = await Posts.findByPk(postId);
+    console.log(post);
 
     // 게시글이 없을 경우
-    if (!post.length) {
+    if (!post) {
       return res.status(400).json({ message: "존재하지 않는 게시글입니다." });
     }
     // 게시글 권한 확인
-    if (userId !== post.userId) {
-      return res.status(403).json({ message: "게시글 삭제 권한이 없습니다." });
-    }
+    // if (userId !== post.userId) {
+    //   return res.status(403).json({ message: "게시글 삭제 권한이 없습니다." });
+    // }
 
     // 게시글 삭제
     const deleteCount = await Posts.destroy({ where: { postId } });
