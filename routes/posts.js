@@ -169,7 +169,6 @@ router.get("/api/posts/:postId", async (req, res) => {
       group: ["Posts.postId"],
       raw: true,
     });
-    console.log(post)
 
     // 게시글에 해당하는 댓글
     const comments = await Comments.findAll({
